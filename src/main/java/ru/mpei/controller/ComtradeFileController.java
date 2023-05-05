@@ -33,7 +33,7 @@ public class ComtradeFileController {
     }
 
     @GetMapping("/files/getCfgAndDatMap")
-    public Map<Integer, Map<String, String>> getCfgAndDatMap() {
+    public Map<String, Map<String, String>> getCfgAndDatMap() {
         return comtradeFilesService.getCfgAndDatMap(comtradeFilesService.getCasePaths(path));
     }
 }

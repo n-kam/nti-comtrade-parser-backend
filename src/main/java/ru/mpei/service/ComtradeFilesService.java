@@ -37,14 +37,14 @@ public class ComtradeFilesService {
                 .collect(Collectors.toList());
     }
 
-    public Map<Integer, Map<String, String>> getCfgAndDatMap(List<String> casePaths) {
+    public Map<String, Map<String, String>> getCfgAndDatMap(List<String> casePaths) {
 
-        Map<Integer, Map<String, String>> comtrades = new HashMap<>();
+        Map<String, Map<String, String>> comtrades = new HashMap<>();
         Map<String, String> comtrade;
 
         for (String casePath : casePaths) {
             String[] split = casePath.split("/");
-            String caseNumber = split[split.length - 1];
+            String caseName = split[split.length - 1];
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(casePath))))) {
 
@@ -56,7 +56,7 @@ public class ComtradeFilesService {
                                     return null;
                                 }, p -> casePath + "/" + p));
 
-                comtrades.put(Integer.parseInt(caseNumber), comtrade);
+                comtrades.put(caseName, comtrade);
 
             } catch (IllegalStateException e) {
                 log.error("Broken files in {}", casePath);
