@@ -10,15 +10,14 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Comtrade {
+public class ComtradeDto {
     private String stationName;
     private String recDevId;
     private Long revYear;
     private Integer totalChannelCount;
     private Integer analogChannelCount;
     private Integer discreteChannelCount;
-    private List<AnalogChannel> analogChannels;
-    private List<DiscreteChannel> discreteChannels;
+    private List<Channel> channels;
     private Double freq;
     private Integer nRates;
     private Double samp, endSamp;
@@ -30,9 +29,10 @@ public class Comtrade {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class AnalogChannel{
+    public static class Channel {
+        String type;
         Integer number;
-        String id;
+        String chId;
         String phase;
         String componentName;
         String unit;
@@ -44,18 +44,7 @@ public class Comtrade {
         Double primary;
         Double secondary;
         String scaleId;
-        List<Double> readings;
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class DiscreteChannel{
-        Integer number;
-        String id;
-        String phase;
-        String componentName;
         Short normalState;
-        List<Integer> readings;
+        List<Double> readings;
     }
 }
