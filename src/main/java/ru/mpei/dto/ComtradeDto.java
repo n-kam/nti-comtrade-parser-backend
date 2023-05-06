@@ -4,13 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ComtradeDto {
+    private String caseName;
     private String stationName;
     private String recDevId;
     private Long revYear;
@@ -21,8 +22,8 @@ public class ComtradeDto {
     private Double freq;
     private Integer nRates;
     private Double samp, endSamp;
-    private Date dateTimeStart;
-    private Date dateTimeStop;
+    private LocalDateTime dateTimeStart;
+    private LocalDateTime dateTimeStop;
     private String fileType;
     private Double timeMultiplier;
 

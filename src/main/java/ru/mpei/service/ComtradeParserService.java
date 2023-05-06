@@ -5,8 +5,8 @@ import ru.mpei.dto.ComtradeDto;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,6 +20,11 @@ public class ComtradeParserService {
         String datFileName = comtradeFile.get("dat");
 
         ComtradeDto comtradeDto = new ComtradeDto();
+
+        String[] split = cfgFileName.split("/");
+        String caseName = split[split.length - 2];
+        comtradeDto.setCaseName(caseName);
+
         Iterator<String> linesIterator;
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(cfgFileName))));
@@ -94,13 +99,9 @@ public class ComtradeParserService {
         comtradeDto.setSamp(Double.parseDouble(line[0]));
         comtradeDto.setEndSamp(Double.parseDouble(line[1]));
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy,HH:mm:ss.SSS");
-        try {
-            comtradeDto.setDateTimeStart(dateFormat.parse(linesIterator.next()));
-            comtradeDto.setDateTimeStop(dateFormat.parse(linesIterator.next()));
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy,HH:mm:ss.SSSSSS");
+        comtradeDto.setDateTimeStart(LocalDateTime.parse(linesIterator.next(), dtf));
+        comtradeDto.setDateTimeStop(LocalDateTime.parse(linesIterator.next(), dtf));
 
         comtradeDto.setFileType(linesIterator.next());
         comtradeDto.setTimeMultiplier(Double.parseDouble(linesIterator.next()));
