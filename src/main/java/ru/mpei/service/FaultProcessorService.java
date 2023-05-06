@@ -4,14 +4,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.mpei.dto.ComtradeDto;
+import ru.mpei.dto.FaultDto;
 import ru.mpei.model.FaultModel;
+import ru.mpei.model.WaveformModel;
 import ru.mpei.repository.FaultCurrentRepo;
+import ru.mpei.repository.WaveformInMemoryRepo;
 import ru.mpei.utils.FourierImpl;
 import ru.mpei.utils.VectorF;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -20,10 +24,20 @@ public class FaultProcessorService {
     @Value("${setPoint}")
     private double setPoint;
 
-    private final FaultCurrentRepo faultCurrentRepo;
+    @Value("${comtradePath}")
+    private String casesDir;
 
-    public FaultProcessorService(FaultCurrentRepo faultCurrentRepo) {
+    private final FaultCurrentRepo faultCurrentRepo;
+    private final WaveformInMemoryRepo waveformRepo;
+    //    private final WaveformSimpleInMemoryRepo waveformRepo;
+    private final ComtradeFilesService comtradeFilesService;
+    private final ComtradeParserService comtradeParserService;
+
+    public FaultProcessorService(FaultCurrentRepo faultCurrentRepo, WaveformInMemoryRepo waveformRepo, ComtradeFilesService comtradeFilesService, ComtradeParserService comtradeParserService) {
         this.faultCurrentRepo = faultCurrentRepo;
+        this.waveformRepo = waveformRepo;
+        this.comtradeFilesService = comtradeFilesService;
+        this.comtradeParserService = comtradeParserService;
     }
 
     public void process(ComtradeDto cDto) {
@@ -37,8 +51,17 @@ public class FaultProcessorService {
         double faultCurrentB = 0;
         double faultCurrentC = 0;
 
+        String aChannelName = null;
+        String bChannelName = null;
+        String cChannelName = null;
+
+        List<Double> iAWaveform = null;
+        List<Double> iBWaveform = null;
+        List<Double> iCWaveform = null;
+
         LocalDateTime dateTimeStart = null;
         FourierImpl fourier = new FourierImpl(1, (int) readingsPerPeriod);
+
 
         // Filter analog channels containing currents data
         List<ComtradeDto.Channel> filteredChannels = cDto.getChannels().stream()
@@ -59,14 +82,20 @@ public class FaultProcessorService {
             if ((ch.getPhase() == null && ch.getChId().replaceAll("[0-9]", "").endsWith("A"))
                     || ch.getPhase() != null && ch.getPhase().equals("A")) {
                 phase = "A";
+                aChannelName = ch.getChId();
+                iAWaveform = ch.getReadings();
 
             } else if ((ch.getPhase() == null && ch.getChId().replaceAll("[0-9]", "").endsWith("B"))
                     || ch.getPhase() != null && ch.getPhase().equals("B")) {
                 phase = "B";
+                bChannelName = ch.getChId();
+                iBWaveform = ch.getReadings();
 
             } else if ((ch.getPhase() == null && ch.getChId().replaceAll("[0-9]", "").endsWith("C"))
                     || ch.getPhase() != null && ch.getPhase().equals("C")) {
                 phase = "C";
+                cChannelName = ch.getChId();
+                iCWaveform = ch.getReadings();
 
             } else throw new RuntimeException("Error in phase parsing");
 
@@ -105,20 +134,50 @@ public class FaultProcessorService {
             fourier.reset();
         }
 
+        // Store fault data
         FaultModel faultModel = new FaultModel();
-
         faultModel.setCaseName(cDto.getCaseName());
         faultModel.setDateTimeStart(dateTimeStart);
         faultModel.setIaRms(faultCurrentA);
         faultModel.setIbRms(faultCurrentB);
         faultModel.setIcRms(faultCurrentC);
-
         if (faultCurrentA != 0) phasesInFault += "A";
         if (faultCurrentB != 0) phasesInFault += "B";
         if (faultCurrentC != 0) phasesInFault += "C";
-
         faultModel.setPhasesInFault(phasesInFault);
 //        log.info("fault model: {}", faultModel);
         faultCurrentRepo.save(faultModel);
+
+        // Store waveforms
+        WaveformModel waveformModel = new WaveformModel();
+        waveformModel.setCaseName(cDto.getCaseName());
+        waveformModel.setAChannelName(aChannelName);
+        waveformModel.setBChannelName(bChannelName);
+        waveformModel.setCChannelName(cChannelName);
+        waveformModel.setIa(iAWaveform);
+        waveformModel.setIb(iBWaveform);
+        waveformModel.setIc(iCWaveform);
+        log.info("waveform model: {}", waveformModel);
+        waveformRepo.save(waveformModel);
+    }
+
+    public boolean selectCase(String caseName) {
+        if (!comtradeFilesService.getCaseNames(casesDir).contains(caseName)) return false;
+
+        List<String> casePaths = comtradeFilesService.getCasePaths(casesDir);
+        Map<String, Map<String, String>> cfgAndDatMap = comtradeFilesService.getCfgAndDatMap(casePaths);
+        ComtradeDto comtradeDto = comtradeParserService.parse(cfgAndDatMap.get(caseName));
+        process(comtradeDto);
+        return true;
+    }
+
+    public FaultDto getFaultDto(String caseName) {
+        FaultModel faultModel = faultCurrentRepo.getReferenceById(caseName);
+        return new FaultDto(faultModel.getCaseName(),
+                faultModel.getDateTimeStart(),
+                faultModel.getIaRms(),
+                faultModel.getIbRms(),
+                faultModel.getIcRms(),
+                faultModel.getPhasesInFault());
     }
 }

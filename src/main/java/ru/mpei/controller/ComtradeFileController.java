@@ -27,13 +27,13 @@ public class ComtradeFileController {
         return comtradeFilesService.getCaseNames(path);
     }
 
-    @GetMapping("/files/getComtradeCasePaths")
-    public List<String> getComtradeCasePaths() {
-        return comtradeFilesService.getCasePaths(path);
-    }
-
-    @GetMapping("/files/getCfgAndDatMap")
-    public Map<String, Map<String, String>> getCfgAndDatMap() {
-        return comtradeFilesService.getCfgAndDatMap(comtradeFilesService.getCasePaths(path));
-    }
+//    @GetMapping("/files/getComtradeCasePaths")
+//    public List<String> getComtradeCasePaths() {
+//        return comtradeFilesService.getCasePaths(path);
+//    }
+//
+//    @GetMapping("/files/getCfgAndDatMap")
+//    public Map<String, Map<String, String>> getCfgAndDatMap() {
+//        return comtradeFilesService.getCfgAndDatMap(comtradeFilesService.getCasePaths(path));
+//    }
 }
