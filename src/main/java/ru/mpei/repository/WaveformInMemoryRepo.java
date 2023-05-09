@@ -8,11 +8,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 public class WaveformInMemoryRepo implements CrudRepository<WaveformModel, String> {
 
-    Map<String, WaveformModel> waveforms = new HashMap<>();
+    Map<String, WaveformModel> waveforms = new ConcurrentHashMap<>();
 
     @Override
     public <S extends WaveformModel> S save(S entity) {
