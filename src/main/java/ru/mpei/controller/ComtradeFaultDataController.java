@@ -12,6 +12,7 @@ import ru.mpei.repository.FaultCurrentRepo;
 import ru.mpei.repository.WaveformInMemoryRepo;
 import ru.mpei.service.FaultProcessorService;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Slf4j
@@ -54,7 +55,7 @@ public class ComtradeFaultDataController {
     }
 
     @PostMapping("/fault/selectCase")
-    public boolean selectCase(@RequestParam String caseName) {
+    public boolean selectCase(@RequestParam String caseName) throws IOException {
         return faultProcessorService.selectCase(caseName);
     }
 

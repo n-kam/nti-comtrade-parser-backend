@@ -4,20 +4,24 @@ import org.springframework.stereotype.Service;
 import ru.mpei.dto.ComtradeDto;
 
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
 public class ComtradeParserService {
 
-    public ComtradeDto parse(Map<String, String> comtradeFile) {
+    public ComtradeDto parse(Map<String, String> comtradeFile) throws IOException {
 
-        String cfgFileName = comtradeFile.get("cfg");
-        String datFileName = comtradeFile.get("dat");
+        String baseName = "src/main/resources/";
+        String cfgFileName = baseName + comtradeFile.get("cfg");
+        String datFileName = baseName + comtradeFile.get("dat");
 
         ComtradeDto comtradeDto = new ComtradeDto();
 
@@ -25,18 +29,14 @@ public class ComtradeParserService {
         String caseName = split[split.length - 2];
         comtradeDto.setCaseName(caseName);
 
-        Iterator<String> linesIterator;
+        BufferedReader reader = new BufferedReader(new FileReader(cfgFileName));
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(cfgFileName))));
-
-        linesIterator = reader.lines().toList().iterator();
-
-        String[] line = linesIterator.next().split(" *, *");
+        String[] line = reader.readLine().split(" *, *");
         comtradeDto.setStationName(line[0]);
         comtradeDto.setRecDevId(line[1]);
         comtradeDto.setRevYear(Long.parseLong(line[2]));
 
-        line = linesIterator.next().split(" *, *");
+        line = reader.readLine().split(" *, *");
         comtradeDto.setTotalChannelCount(Integer.parseInt(line[0]));
         int analogChannelCount = Integer.parseInt(line[1].replaceAll("[a-zA-Z]", ""));
         comtradeDto.setAnalogChannelCount(analogChannelCount);
@@ -49,7 +49,7 @@ public class ComtradeParserService {
 
         for (int i = 0; i < analogChannelCount; i++) {
 
-            line = linesIterator.next().split(" *, *");
+            line = reader.readLine().split(" *, *");
             analogChannels.add(new ComtradeDto.Channel(
                     "analog",
                     Integer.parseInt(line[0]),
@@ -71,7 +71,7 @@ public class ComtradeParserService {
 
 
         for (int i = 0; i < discreteChannelCount; i++) {
-            line = linesIterator.next().split(" *, *");
+            line = reader.readLine().split(" *, *");
 
             discreteChannels.add(new ComtradeDto.Channel(
                     "discrete",
@@ -93,24 +93,24 @@ public class ComtradeParserService {
 
         }
 
-        comtradeDto.setFreq(Double.parseDouble(linesIterator.next()));
-        comtradeDto.setNRates(Integer.parseInt(linesIterator.next()));
-        line = linesIterator.next().split(" *, *");
+        comtradeDto.setFreq(Double.parseDouble(reader.readLine()));
+        comtradeDto.setNRates(Integer.parseInt(reader.readLine()));
+        line = reader.readLine().split(" *, *");
         comtradeDto.setSamp(Double.parseDouble(line[0]));
         comtradeDto.setEndSamp(Double.parseDouble(line[1]));
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy,HH:mm:ss.SSSSSS");
-        comtradeDto.setDateTimeStart(LocalDateTime.parse(linesIterator.next(), dtf));
-        comtradeDto.setDateTimeStop(LocalDateTime.parse(linesIterator.next(), dtf));
+        comtradeDto.setDateTimeStart(LocalDateTime.parse(reader.readLine(), dtf));
+        comtradeDto.setDateTimeStop(LocalDateTime.parse(reader.readLine(), dtf));
 
-        comtradeDto.setFileType(linesIterator.next());
-        comtradeDto.setTimeMultiplier(Double.parseDouble(linesIterator.next()));
+        comtradeDto.setFileType(reader.readLine());
+        comtradeDto.setTimeMultiplier(Double.parseDouble(reader.readLine()));
 
-        reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(datFileName))));
-        linesIterator = reader.lines().toList().iterator();
+        reader = new BufferedReader(new FileReader(datFileName));
 
-        while (linesIterator.hasNext()) {
-            line = linesIterator.next().split(" *, *");
+        String tempLine;
+        while ((tempLine = reader.readLine()) != null) {
+            line = tempLine.split(" *, *");
 
             int i = 1;
 

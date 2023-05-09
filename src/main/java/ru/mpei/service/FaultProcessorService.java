@@ -12,6 +12,7 @@ import ru.mpei.repository.WaveformInMemoryRepo;
 import ru.mpei.utils.FourierImpl;
 import ru.mpei.utils.VectorF;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -161,7 +162,7 @@ public class FaultProcessorService {
         waveformRepo.save(waveformModel);
     }
 
-    public boolean selectCase(String caseName) {
+    public boolean selectCase(String caseName) throws IOException {
         if (!comtradeFilesService.getCaseNames(casesDir).contains(caseName)) return false;
 
         List<String> casePaths = comtradeFilesService.getCasePaths(casesDir);
