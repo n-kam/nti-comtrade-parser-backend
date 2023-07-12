@@ -150,7 +150,7 @@ public class ComtradeParserService {
         while ((readLine = reader.readLine()) != null) {
             String[] line = readLine.split(" *, *");
 
-            int i = 1;
+            int i = 2;
 
             for (ComtradeDto.Channel analogChannel : this.analogChannels) {
                 Double reading = Double.parseDouble(line[i]) * analogChannel.getA() + analogChannel.getB();
