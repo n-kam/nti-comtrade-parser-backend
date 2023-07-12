@@ -13,6 +13,7 @@ import ru.mpei.utils.FourierImpl;
 import ru.mpei.utils.VectorF;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -163,6 +164,7 @@ public class FaultProcessorService {
         waveformModel.setCChannelName(cChannelName);
 
         // TEMPORARY SIMPLIFICATION!!! <<<<<-----
+        DecimalFormat df = new DecimalFormat("#.##");
         int n = 2;
 //        List<LocalDateTime> times = new ArrayList<>();
         List<Double> times = new ArrayList<>();
@@ -171,7 +173,7 @@ public class FaultProcessorService {
 
         for (int i = 0; i < iAWaveform.size(); i += n) {
 //            System.out.println("i=" + i);
-            times.add(timeMillis * i);
+            times.add(Double.valueOf(df.format(timeMillis * i)));
         }
 
         List<Double> list = new ArrayList<>();
