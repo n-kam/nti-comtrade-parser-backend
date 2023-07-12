@@ -31,15 +31,15 @@ public class TestController {
         return faultDto;
     }
 
-    @GetMapping("/test/fault/getFaultReadings")
-    public Optional<WaveformModel> getFaultReadings(@RequestParam String caseName) {
-        List<Double> ia = List.of(10.0, 20.0, 30.0, 100.0);
-        List<Double> ib = List.of(20.0, 20.0, 30.0, 100.0);
-        List<Double> ic = List.of(30.0, 20.0, 30.0, 100.0);
-        Optional<WaveformModel> waveform = Optional.of(new WaveformModel("caseName", "aCh", "bCh", "cCh", ia, ib, ic));
-        log.info("getFaultReadings. requestParam: {}; response (waveform): {}", caseName, waveform);
-        return waveform;
-    }
+//    @GetMapping("/test/fault/getFaultReadings")
+//    public Optional<WaveformModel> getFaultReadings(@RequestParam String caseName) {
+//        List<Double> ia = List.of(10.0, 20.0, 30.0, 100.0);
+//        List<Double> ib = List.of(20.0, 20.0, 30.0, 100.0);
+//        List<Double> ic = List.of(30.0, 20.0, 30.0, 100.0);
+//        Optional<WaveformModel> waveform = Optional.of(new WaveformModel("caseName", "aCh", "bCh", "cCh", ia, ib, ic));
+//        log.info("getFaultReadings. requestParam: {}; response (waveform): {}", caseName, waveform);
+//        return waveform;
+//    }
 
     @PostMapping("/test/fault/selectCase")
     public boolean selectCase(@RequestParam String caseName) {

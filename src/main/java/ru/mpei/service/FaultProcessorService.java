@@ -15,8 +15,10 @@ import ru.mpei.utils.VectorF;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -146,7 +148,11 @@ public class FaultProcessorService {
         if (faultCurrentB != 0) phasesInFault += "B";
         if (faultCurrentC != 0) phasesInFault += "C";
         faultModel.setPhasesInFault(phasesInFault);
-//        log.info("fault model: {}", faultModel);
+
+
+        log.info("fault model: {}", faultModel);
+
+
         faultCurrentRepo.save(faultModel);
 
         // Store waveforms
@@ -155,10 +161,48 @@ public class FaultProcessorService {
         waveformModel.setAChannelName(aChannelName);
         waveformModel.setBChannelName(bChannelName);
         waveformModel.setCChannelName(cChannelName);
+
+        // TEMPORARY SIMPLIFICATION!!! <<<<<-----
+        int n = 2;
+//        List<LocalDateTime> times = new ArrayList<>();
+        List<Double> times = new ArrayList<>();
+        double timeMillis = 1 / samp * 1000;
+//        System.out.println("timeMillis=" + timeMillis);
+
+        for (int i = 0; i < iAWaveform.size(); i += n) {
+//            System.out.println("i=" + i);
+            times.add(timeMillis * i);
+        }
+
+        List<Double> list = new ArrayList<>();
+
+        for (int i = 0; i < iAWaveform.size(); i += n) {
+            list.add(iAWaveform.get(i));
+        }
+        iAWaveform = list;
+
+        list = new ArrayList<>();
+        for (int i = 0; i < iBWaveform.size(); i += n) {
+            list.add(iBWaveform.get(i));
+        }
+        iBWaveform = list;
+
+        list = new ArrayList<>();
+        for (int i = 0; i < iCWaveform.size(); i += n) {
+            list.add(iCWaveform.get(i));
+        }
+        iCWaveform = list;
+//        ------>>>>>>
+
         waveformModel.setIa(iAWaveform);
         waveformModel.setIb(iBWaveform);
         waveformModel.setIc(iCWaveform);
+        waveformModel.setTimes(times);
+
+
         log.info("waveform model: {}", waveformModel);
+
+
         waveformRepo.save(waveformModel);
     }
 

@@ -21,7 +21,8 @@ public class ComtradeDto {
     private List<Channel> channels;
     private Double freq;
     private Integer nRates;
-    private Double samp, endSamp;
+    private Double samp;
+    private Integer endSamp;
     private LocalDateTime dateTimeStart;
     private LocalDateTime dateTimeStop;
     private String fileType;

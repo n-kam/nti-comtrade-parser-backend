@@ -37,4 +37,16 @@ public class FaultModel {
 
     @Column(name = "phases_in_fault")
     private String phasesInFault;
+
+    @Override
+    public String toString() {
+        return "FaultModel{" +
+                "caseName='" + caseName + '\'' +
+                ", dateTimeStart=" + dateTimeStart +
+                ", iaRms=" + iaRms +
+                ", ibRms=" + ibRms +
+                ", icRms=" + icRms +
+                ", phasesInFault='" + phasesInFault + '\'' +
+                '}';
+    }
 }
