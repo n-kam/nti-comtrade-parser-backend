@@ -36,6 +36,7 @@ public class FaultProcessorService {
     //    private final WaveformSimpleInMemoryRepo waveformRepo;
     private final ComtradeFilesService comtradeFilesService;
     private final ComtradeParserService comtradeParserService;
+    DecimalFormat df = new DecimalFormat("#.##");
 
     public FaultProcessorService(FaultCurrentRepo faultCurrentRepo, WaveformInMemoryRepo waveformRepo, ComtradeFilesService comtradeFilesService, ComtradeParserService comtradeParserService) {
         this.faultCurrentRepo = faultCurrentRepo;
@@ -73,7 +74,6 @@ public class FaultProcessorService {
                 .limit(3)
                 .toList();
 
-//        log.info("date time start: {}", cDto.getDateTimeStart());
 
         // Loop through filtered channels
         for (ComtradeDto.Channel ch : filteredChannels) {
@@ -102,8 +102,6 @@ public class FaultProcessorService {
                 iCWaveform = ch.getReadings();
 
             } else throw new RuntimeException("Error in phase parsing");
-
-//            log.info("channel name (id): {}, phase: {}", ch.getChId(), phase);
 
             int index = 0;
 
@@ -149,11 +147,6 @@ public class FaultProcessorService {
         if (faultCurrentB != 0) phasesInFault += "B";
         if (faultCurrentC != 0) phasesInFault += "C";
         faultModel.setPhasesInFault(phasesInFault);
-
-
-        log.info("fault model: {}", faultModel);
-
-
         faultCurrentRepo.save(faultModel);
 
         // Store waveforms
@@ -163,47 +156,53 @@ public class FaultProcessorService {
         waveformModel.setBChannelName(bChannelName);
         waveformModel.setCChannelName(cChannelName);
 
-        // TEMPORARY SIMPLIFICATION!!! <<<<<-----
-        DecimalFormat df = new DecimalFormat("#.##");
-        int n = 2;
-//        List<LocalDateTime> times = new ArrayList<>();
-        List<Double> times = new ArrayList<>();
+
+        // KOSTYL'. Decimatimg output for ANSI comtrades. DAT files have too low sample rate for this
+        List<Double> timestamps = new ArrayList<>();
         double timeMillis = 1 / samp * 1000;
-//        System.out.println("timeMillis=" + timeMillis);
+        int n;
 
-        for (int i = 0; i < iAWaveform.size(); i += n) {
-//            System.out.println("i=" + i);
-            times.add(Double.valueOf(df.format(timeMillis * i)));
+        if (iAWaveform.size() > 10000) {
+            n = 20;
+            List<Double> list;
+
+            // Create timestamps
+            for (int i = 0; i < iAWaveform.size(); i += n) {
+                timestamps.add(Double.valueOf(df.format(timeMillis * i)));
+            }
+
+            // Decimate channel A
+            list = new ArrayList<>();
+            for (int i = 0; i < iAWaveform.size(); i += n) {
+                list.add(iAWaveform.get(i));
+            }
+            iAWaveform = list;
+
+            // Decimate channel B
+            list = new ArrayList<>();
+            for (int i = 0; i < iBWaveform.size(); i += n) {
+                list.add(iBWaveform.get(i));
+            }
+            iBWaveform = list;
+
+            // Decimate channel C
+            list = new ArrayList<>();
+            for (int i = 0; i < iCWaveform.size(); i += n) {
+                list.add(iCWaveform.get(i));
+            }
+            iCWaveform = list;
+
+        } else {
+            // Create timestamps
+            for (int i = 0; i < iAWaveform.size(); i++) {
+                timestamps.add(Double.valueOf(df.format(timeMillis * i)));
+            }
         }
-
-        List<Double> list = new ArrayList<>();
-
-        for (int i = 0; i < iAWaveform.size(); i += n) {
-            list.add(iAWaveform.get(i));
-        }
-        iAWaveform = list;
-
-        list = new ArrayList<>();
-        for (int i = 0; i < iBWaveform.size(); i += n) {
-            list.add(iBWaveform.get(i));
-        }
-        iBWaveform = list;
-
-        list = new ArrayList<>();
-        for (int i = 0; i < iCWaveform.size(); i += n) {
-            list.add(iCWaveform.get(i));
-        }
-        iCWaveform = list;
-//        ------>>>>>>
 
         waveformModel.setIa(iAWaveform);
         waveformModel.setIb(iBWaveform);
         waveformModel.setIc(iCWaveform);
-        waveformModel.setTimes(times);
-
-
-        log.info("waveform model: {}", waveformModel);
-
+        waveformModel.setTimes(timestamps);
 
         waveformRepo.save(waveformModel);
     }
