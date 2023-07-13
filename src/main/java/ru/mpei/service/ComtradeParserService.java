@@ -175,37 +175,23 @@ public class ComtradeParserService {
 
 
         //
-        analogChCount = 33;
-        discreteChCount = 128;
-        endSamp = 6000;
-        this.comtradeDto.setTimeMultiplier(1.0);
+//        analogChCount = 33;
+//        discreteChCount = 128;
+//        endSamp = 6000;
+//        this.comtradeDto.setTimeMultiplier(1.0);
         //
 
 
         int discreteChByteCount;
         if (discreteChCount % 16 == 0) {
-//            lineLength = (4 + 4 + analogChCount * 2 + (discreteChCount / 16) * 2);
             discreteChByteCount = (discreteChCount / 16) * 2;
         } else {
-//            lineLength = (4 + 4 + analogChCount * 2 + (discreteChCount / 16 + 1) * 2);
             discreteChByteCount = (discreteChCount / 16 + 1) * 2;
         }
 
         int lineLength = 4 + 4 + analogChCount * 2 + discreteChByteCount;
 
-        System.out.println("ll: " + lineLength);
-
-//        StringBuilder header = new StringBuilder();
-//        header.append("number      time      ");
-//        header.append("number         date           ");
-//        for (int i = 1; i <= analogChCount + discreteChCount; i++) {
-//            header.append(String.format("%6d", i)).append(",");
-//        }
-//        System.out.println(header);
-
-
         for (int i = 0; i < endSamp; i++) {
-//            StringBuilder result = new StringBuilder();
 
             byte[] line = Arrays.copyOfRange(bytes, i * lineLength, i * lineLength + lineLength);
 
@@ -215,7 +201,6 @@ public class ComtradeParserService {
 
             int j = 0;
             for (ComtradeDto.Channel analogChannel : this.analogChannels) {
-//                short val = byteArrayToShortTraversed(new byte[]{line[j], line[j + i]}, 0);
                 Double reading = byteArrayToShortTraversed(line, j) * analogChannel.getA() + analogChannel.getB();
                 analogChannel.getReadings().add(reading);
                 j += 2;
@@ -224,55 +209,14 @@ public class ComtradeParserService {
             int[] ints = new int[discreteChCount];
 
             for (int k = 0; k < discreteChByteCount; k++) {
-
                 System.arraycopy(byteToBinaryInts(line[k]), 0, ints, 7 * k, 8);
-
-//                if (7 * (k + 1) - 7 * k >= 0){
-//                    System.arraycopy(byteToBinaryInts(line[k]), 7 * k, ints, 7 * k, 7 * (k + 1) - 7 * k);
-//                }
             }
 
             j = 0;
             for (ComtradeDto.Channel discreteChannel : this.discreteChannels) {
-//                int[] ints = byteToBinaryInts(bytes[i * lineLength + j]);
                 discreteChannel.getReadings().add((double) ints[j]);
-//                j += 2;
                 j++;
             }
-
-
-//            byte[] num = new byte[4];
-//
-//            for (int j = 0; j < 4; j++) {
-//                num[j] = bytes[i * lineLength + j];
-//            }
-//            result.append(String.format("%06d", byteArrayToIntTraversed(num, 0)));
-//            result.append("   ");
-//
-//            for (int j = 4; j < 8; j++) {
-//                num[j - 4] = bytes[i * lineLength + j];
-//            }
-//            result.append(String.format("%7d ms", byteArrayToIntTraversed(num, 0)));
-//            result.append("   ");
-//
-//            int analogLength = 33 * 2;
-//
-//
-//            for (int j = 8; j < 8 + analogLength; j += 2) {
-//                short s = byteArrayToShortTraversed(new byte[]{bytes[i * lineLength + j], bytes[i * lineLength + j + 1]}, 0);
-//                result.append(String.format("%6d,", s));
-//            }
-//            result.append(" |   ");
-
-//            for (int j = 8 + analogLength; j < lineLength; j++) {
-//                int[] ints = byteToBinaryInts(bytes[i * lineLength + j]);
-//                result.append(Arrays.toString(ints)
-//                        .replaceAll("\\[", "")
-//                        .replaceAll("\\]", ", ")
-//                        .replaceAll(", ", ",     "));
-//            }
-//
-//            System.out.println(result);
         }
     }
 
