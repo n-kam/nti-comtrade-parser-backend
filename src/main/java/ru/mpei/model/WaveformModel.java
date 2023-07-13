@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -27,7 +26,6 @@ public class WaveformModel {
                 ", aChannelName='" + aChannelName + '\'' +
                 ", bChannelName='" + bChannelName + '\'' +
                 ", cChannelName='" + cChannelName + '\'' +
-//                ", times=" + times +
                 ", times size=" + times.size() +
                 ", ia size=" + ia.size() +
                 ", ib size=" + ib.size() +

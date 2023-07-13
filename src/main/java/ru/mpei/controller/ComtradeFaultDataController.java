@@ -34,20 +34,8 @@ public class ComtradeFaultDataController {
 
     @GetMapping("/fault/getFaultData")
     public FaultDto getFaultData(@RequestParam String caseName) {
-//        return faultCurrentRepo.getById(caseName);
-//        return faultCurrentRepo.getReferenceById(caseName);
         return faultProcessorService.getFaultDto(caseName);
     }
-
-//    @GetMapping("/fault/getFaultReadings")
-//    public WaveformModel getFaultReadings(@RequestParam String caseName) {
-//        return waveformRepo.findById(caseName).orElse(null);
-//    }
-
-//    @GetMapping("/fault/getFaultReadings")
-//    public WaveformModel getFaultReadings(@RequestParam String caseName) {
-//        return waveformRepo.findById(caseName);
-//    }
 
     @GetMapping("/fault/getFaultReadings")
     public Optional<WaveformModel> getFaultReadings(@RequestParam String caseName) {
@@ -58,5 +46,4 @@ public class ComtradeFaultDataController {
     public boolean selectCase(@RequestParam String caseName) throws IOException {
         return faultProcessorService.selectCase(caseName);
     }
-
 }

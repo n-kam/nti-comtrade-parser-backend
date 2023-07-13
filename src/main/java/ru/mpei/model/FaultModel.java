@@ -16,8 +16,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FaultModel {
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
 
     @Id
     @Column(name = "case_number")
@@ -37,16 +35,4 @@ public class FaultModel {
 
     @Column(name = "phases_in_fault")
     private String phasesInFault;
-
-    @Override
-    public String toString() {
-        return "FaultModel{" +
-                "caseName='" + caseName + '\'' +
-                ", dateTimeStart=" + dateTimeStart +
-                ", iaRms=" + iaRms +
-                ", ibRms=" + ibRms +
-                ", icRms=" + icRms +
-                ", phasesInFault='" + phasesInFault + '\'' +
-                '}';
-    }
 }

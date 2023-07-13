@@ -7,19 +7,29 @@ import lombok.Setter;
 @Setter
 public class VectorF {
 
-    /** Модуль вектора */
+    /**
+     * Модуль вектора
+     */
     private double mag;
 
-    /** Угол вектора, град [-180 : 180] */
+    /**
+     * Угол вектора, град [-180 : 180]
+     */
     private double ang;
 
-    /** Ортогональная составляющая, ось Х */
+    /**
+     * Ортогональная составляющая, ось Х
+     */
     private double ortX;
 
-    /** Ортогональная составляющая, ось Y */
+    /**
+     * Ортогональная составляющая, ось Y
+     */
     private double ortY;
 
-    /** Задать вектор с помощью амплитуды и угла (градусы) */
+    /**
+     * Задать вектор с помощью амплитуды и угла (градусы)
+     */
     public void setMagAngDeg(double mag, double ang) {
         this.mag = mag;
         this.ang = ang;
@@ -28,7 +38,9 @@ public class VectorF {
         this.ortY = mag * Math.sin(rad);
     }
 
-    /** Задать вектор с помощью амплитуды и угла (радианы) */
+    /**
+     * Задать вектор с помощью амплитуды и угла (радианы)
+     */
     public void setMagAngRad(double mag, double ang) {
         this.mag = mag;
         this.ang = Math.toDegrees(ang);
@@ -36,7 +48,9 @@ public class VectorF {
         this.ortY = mag * Math.sin(ang);
     }
 
-    /** Задать вектор с помощью ортогональных составляющих */
+    /**
+     * Задать вектор с помощью ортогональных составляющих
+     */
     public void setOrtPair(double ortX, double ortY) {
         this.ortX = ortX;
         this.ortY = ortY;

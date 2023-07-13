@@ -36,8 +36,6 @@ public class ComtradeParserService {
         String cfgFileName = baseName + comtradeFile.get("cfg");
         String datFileName = baseName + comtradeFile.get("dat");
 
-//        ComtradeDto comtradeDto = new ComtradeDto();
-
         String[] split = cfgFileName.split("/");
         String caseName = split[split.length - 2];
         this.comtradeDto.setCaseName(caseName);
@@ -163,6 +161,8 @@ public class ComtradeParserService {
                 i++;
             }
         }
+
+        reader.close();
     }
 
     public void parseDatBinary(String datFileName) throws IOException {
@@ -172,15 +172,6 @@ public class ComtradeParserService {
         int analogChCount = this.analogChannels.size();
         int discreteChCount = this.discreteChannels.size();
         Integer endSamp = this.comtradeDto.getEndSamp();
-
-
-        //
-//        analogChCount = 33;
-//        discreteChCount = 128;
-//        endSamp = 6000;
-//        this.comtradeDto.setTimeMultiplier(1.0);
-        //
-
 
         int discreteChByteCount;
         if (discreteChCount % 16 == 0) {
@@ -263,7 +254,6 @@ public class ComtradeParserService {
 
     private int[] byteToBinaryInts(byte b) {
         int[] bits = new int[8];
-        byte bb = (byte) 0b1;
         for (int i = 0; i < 8; i++) {
             int k = b & (byte) 0b1;
             b >>= 1;

@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.mpei.service.ComtradeFilesService;
 
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -26,14 +25,4 @@ public class ComtradeFileController {
     public List<String> getComtradeCaseNames() {
         return comtradeFilesService.getCaseNames(path);
     }
-
-//    @GetMapping("/files/getComtradeCasePaths")
-//    public List<String> getComtradeCasePaths() {
-//        return comtradeFilesService.getCasePaths(path);
-//    }
-//
-//    @GetMapping("/files/getCfgAndDatMap")
-//    public Map<String, Map<String, String>> getCfgAndDatMap() {
-//        return comtradeFilesService.getCfgAndDatMap(comtradeFilesService.getCasePaths(path));
-//    }
 }

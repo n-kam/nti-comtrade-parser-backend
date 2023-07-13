@@ -19,7 +19,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -33,7 +32,6 @@ public class FaultProcessorService {
 
     private final FaultCurrentRepo faultCurrentRepo;
     private final WaveformInMemoryRepo waveformRepo;
-    //    private final WaveformSimpleInMemoryRepo waveformRepo;
     private final ComtradeFilesService comtradeFilesService;
     private final ComtradeParserService comtradeParserService;
     DecimalFormat df = new DecimalFormat("#.##");
@@ -131,7 +129,6 @@ public class FaultProcessorService {
                 }
                 fourier.process(reading, vectorF);
             }
-//            log.info("case: {}, channel: {}, Ia: {}, Ib: {}, Ic: {}, ph: {}, datetime: {}", cDto.getCaseName(), ch.getChId(), faultCurrentA, faultCurrentB, faultCurrentC, phasesInFault, dateTimeStart);
 
             fourier.reset();
         }
@@ -198,15 +195,17 @@ public class FaultProcessorService {
                 timestamps.add(Double.valueOf(df.format(timeMillis * i)));
             }
 
-
-            ///// !!!!!!!!!!!!!!!!!
-            iAWaveform.subList(2000, iAWaveform.size()).clear();
-            iBWaveform.subList(2000, iBWaveform.size()).clear();
-            iCWaveform.subList(2000, iCWaveform.size()).clear();
-            timestamps.subList(2000, timestamps.size()).clear();
-            ///// !!!!!!!!!!!!!!!!!
-
-
+            // OCHEN KOSTYL'. Cut beginning and end of binary waveforms where there is no useful data to make chart more visual
+            int decimateBeginningTo = 500;
+            int decimateEndFrom = 2000;
+            iAWaveform.subList(0, decimateBeginningTo).clear();
+            iBWaveform.subList(0, decimateBeginningTo).clear();
+            iCWaveform.subList(0, decimateBeginningTo).clear();
+            timestamps.subList(0, decimateBeginningTo).clear();
+            iAWaveform.subList(decimateEndFrom, iAWaveform.size()).clear();
+            iBWaveform.subList(decimateEndFrom, iBWaveform.size()).clear();
+            iCWaveform.subList(decimateEndFrom, iCWaveform.size()).clear();
+            timestamps.subList(decimateEndFrom, timestamps.size()).clear();
         }
 
         waveformModel.setIa(iAWaveform);
