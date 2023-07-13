@@ -199,7 +199,7 @@ public class ComtradeParserService {
             double time = byteArrayToIntTraversed(line, 4) * this.comtradeDto.getTimeMultiplier();
 
 
-            int j = 0;
+            int j = 8;
             for (ComtradeDto.Channel analogChannel : this.analogChannels) {
                 Double reading = byteArrayToShortTraversed(line, j) * analogChannel.getA() + analogChannel.getB();
                 analogChannel.getReadings().add(reading);
