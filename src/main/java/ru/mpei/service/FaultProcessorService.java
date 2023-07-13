@@ -50,6 +50,7 @@ public class FaultProcessorService {
         double freq = cDto.getFreq();
         double samp = cDto.getSamp();
         double readingsPerPeriod = samp / freq;
+        double normalCurrent = 1_000_000;
         String phasesInFault = "";
 
         double faultCurrentA = 0;
@@ -78,7 +79,6 @@ public class FaultProcessorService {
         // Loop through filtered channels
         for (ComtradeDto.Channel ch : filteredChannels) {
 
-            double normalCurrent = 1_000_000;
             VectorF vectorF = new VectorF();
 
             // Determine channel phase
@@ -114,24 +114,24 @@ public class FaultProcessorService {
                 }
 
                 // If current is above set point process fault data
-                if (index > readingsPerPeriod && (vectorF.getMag() > normalCurrent * setPoint)) {
+                if (index > readingsPerPeriod) {
 
-                    // Save fault start date-time
-                    if (dateTimeStart == null) {
+                    if ((dateTimeStart == null) && (vectorF.getMag() > normalCurrent * setPoint)) {
+                        // Save fault start date-time
                         long usFromRecordingStart = (long) (index / samp * 1_000_000);
                         dateTimeStart = cDto.getDateTimeStart().plus(usFromRecordingStart, ChronoUnit.MICROS);
-                    }
-
-                    // Save max fault current for phase
-                    switch (phase) {
-                        case "A" -> faultCurrentA = Math.max(faultCurrentA, vectorF.getMag());
-                        case "B" -> faultCurrentB = Math.max(faultCurrentB, vectorF.getMag());
-                        case "C" -> faultCurrentC = Math.max(faultCurrentC, vectorF.getMag());
+                    } else {
+                        // Save max fault current for phase
+                        switch (phase) {
+                            case "A" -> faultCurrentA = Math.max(faultCurrentA, vectorF.getMag());
+                            case "B" -> faultCurrentB = Math.max(faultCurrentB, vectorF.getMag());
+                            case "C" -> faultCurrentC = Math.max(faultCurrentC, vectorF.getMag());
+                        }
                     }
                 }
                 fourier.process(reading, vectorF);
             }
-            log.info("case: {}, channel: {}, Ia: {}, Ib: {}, Ic: {}, ph: {}, datetime: {}", cDto.getCaseName(), ch.getChId(), faultCurrentA, faultCurrentB, faultCurrentC, phasesInFault, dateTimeStart);
+//            log.info("case: {}, channel: {}, Ia: {}, Ib: {}, Ic: {}, ph: {}, datetime: {}", cDto.getCaseName(), ch.getChId(), faultCurrentA, faultCurrentB, faultCurrentC, phasesInFault, dateTimeStart);
 
             fourier.reset();
         }
@@ -140,12 +140,12 @@ public class FaultProcessorService {
         FaultModel faultModel = new FaultModel();
         faultModel.setCaseName(cDto.getCaseName());
         faultModel.setDateTimeStart(dateTimeStart);
-        faultModel.setIaRms(faultCurrentA);
-        faultModel.setIbRms(faultCurrentB);
-        faultModel.setIcRms(faultCurrentC);
-        if (faultCurrentA != 0) phasesInFault += "A";
-        if (faultCurrentB != 0) phasesInFault += "B";
-        if (faultCurrentC != 0) phasesInFault += "C";
+        faultModel.setIaRms(Double.valueOf(df.format(faultCurrentA)));
+        faultModel.setIbRms(Double.valueOf(df.format(faultCurrentB)));
+        faultModel.setIcRms(Double.valueOf(df.format(faultCurrentC)));
+        if (faultCurrentA >= normalCurrent * setPoint) phasesInFault += "A";
+        if (faultCurrentB >= normalCurrent * setPoint) phasesInFault += "B";
+        if (faultCurrentC >= normalCurrent * setPoint) phasesInFault += "C";
         faultModel.setPhasesInFault(phasesInFault);
         faultCurrentRepo.save(faultModel);
 
@@ -197,6 +197,16 @@ public class FaultProcessorService {
             for (int i = 0; i < iAWaveform.size(); i++) {
                 timestamps.add(Double.valueOf(df.format(timeMillis * i)));
             }
+
+
+            ///// !!!!!!!!!!!!!!!!!
+            iAWaveform.subList(2000, iAWaveform.size()).clear();
+            iBWaveform.subList(2000, iBWaveform.size()).clear();
+            iCWaveform.subList(2000, iCWaveform.size()).clear();
+            timestamps.subList(2000, timestamps.size()).clear();
+            ///// !!!!!!!!!!!!!!!!!
+
+
         }
 
         waveformModel.setIa(iAWaveform);
