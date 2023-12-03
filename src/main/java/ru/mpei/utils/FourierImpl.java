@@ -108,6 +108,4 @@ public class FourierImpl {
             yb[i] = 0.0;
         });
     }
-
-
 }
